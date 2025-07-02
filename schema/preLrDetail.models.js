@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const preLrDetailSchema = new mongoose.Schema(
   {
     internal_id:   { type: String, unique: true },
-
+    name:          String,
     state:         String,
     billing_party: String,
     booking_loc:   String,

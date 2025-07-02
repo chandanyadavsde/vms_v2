@@ -9,6 +9,7 @@ const axios = require("axios");
 const {config,createNetsuiteAuthHeaders}= require("./config/netsuite.config");
 const { getPreLrList } = require('./controller/preLrController');
 const router = require('./routes/master.routes');
+const plantRouter = require("./routes/plant.routes")
 const connectDB = require("./config/db.config")
 
 const app = express();
@@ -87,6 +88,7 @@ app.get('/realtime-logs', (req, res) => {
 // Default test route
 app.get('/', (req, res) => res.send('VMS is Up and Running ✅'));
 app.use("/vms",router)
+app.use("/plant",plantRouter)
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
