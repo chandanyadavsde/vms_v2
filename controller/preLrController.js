@@ -19,6 +19,7 @@ const deref = v => (v && typeof v === 'object' && 'refName' in v ? v.refName : v
 /*  Mapper function (must be defined BEFORE it’s used)                */
 /* ------------------------------------------------------------------ */
 const mapFields = o => ({
+  name:          deref(o.name),
   state:         deref(o.custrecord_bg_sg_pre_lr_header_state),
   billing_party: deref(o.custrecord_bs_sg_pre_lr_hd_billing_party),
   booking_loc:   deref(o.custrecord_bs_sg_pre_lr_hd_bokng_locatin),
@@ -155,6 +156,7 @@ exports.syncPreLrDetail = async (req, res) => {
 /*  Debug: fetch raw NetSuite JSON for a single ID                     */
 /* ------------------------------------------------------------------ */
 exports.getPreLrList = async (req, res) => {
+  
   const id = req.params.id;
   if (!id) return res.status(400).send('Provide :id in URL');
   try {

@@ -89,6 +89,8 @@ app.get('/realtime-logs', (req, res) => {
 app.get('/', (req, res) => res.send('VMS is Up and Running ✅'));
 app.use("/vms",router)
 app.use("/plant",plantRouter)
+app.use('/api', require('./routes/lr.routes'));
+
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {

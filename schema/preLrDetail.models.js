@@ -1,5 +1,6 @@
 /* models/preLrDetail.js  – full payload */
 const mongoose = require('mongoose');
+const {Schema} = mongoose
 
 const preLrDetailSchema = new mongoose.Schema(
   {
@@ -24,6 +25,10 @@ const preLrDetailSchema = new mongoose.Schema(
     to_location:   String,
     subsidiary:    String,
     bill_party_re: String,
+        /* reference arrays (optional, see below) */
+    lrs:        [{ type: Schema.Types.ObjectId, ref: 'LR' }],
+    punchlists: [{ type: Schema.Types.ObjectId, ref: 'Punchlist' }],
+    checklists: [{ type: Schema.Types.ObjectId, ref: 'Checklist' }],
 
     fetchedAt:     Date,
     rawPayload:    Object               // optional debug store
@@ -31,5 +36,21 @@ const preLrDetailSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+/* virtuals so you can header.populate('lrs') without storing the array */
+preLrDetailSchema.virtual('v_lrs', {
+  ref: 'LR',
+  localField: '_id',
+  foreignField: 'prelr'
+});
+preLrDetailSchema.virtual('v_punchlists', {
+  ref: 'Punchlist',
+  localField: '_id',
+  foreignField: 'prelr'
+});
+preLrDetailSchema.virtual('v_checklists', {
+  ref: 'Checklist',
+  localField: '_id',
+  foreignField: 'prelr'
+});
 
 module.exports = mongoose.model('PreLRDetail', preLrDetailSchema);
