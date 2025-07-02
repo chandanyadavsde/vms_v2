@@ -143,27 +143,51 @@ return res.json({ imported: 0, synced: 0, message: 'No new Pre‑LRs.' });
 /*  Public Phase ② endpoint (manual/cron)                             */
 /* ------------------------------------------------------------------ */
 exports.syncPreLrDetail = async (req, res) => {
-  try {
-    const processed = await syncPreLrDetailInternal();
+    try {
+        const processed = await syncPreLrDetailInternal();
     res.json({ processed, message: 'Detail sync complete.' });
   } catch (err) {
-    console.error('Detail‑sync error:', err.response?.data || err.message);
-    res.status(500).send('Failed to sync Pre‑LR details');
-  }
+      console.error('Detail‑sync error:', err.response?.data || err.message);
+      res.status(500).send('Failed to sync Pre‑LR details');
+    }
 };
 
 /* ------------------------------------------------------------------ */
 /*  Debug: fetch raw NetSuite JSON for a single ID                     */
 /* ------------------------------------------------------------------ */
 exports.getPreLrList = async (req, res) => {
-  
-  const id = req.params.id;
-  if (!id) return res.status(400).send('Provide :id in URL');
+    
+    const id = req.params.id;
+    if (!id) return res.status(400).send('Provide :id in URL');
+    try {
+        const data = await fetchOne(id);
+        res.json(data);
+    } catch (err) {
+        console.error('Single‑ID fetch error:', err.response?.data || err.message);
+        res.status(500).send('Failed to fetch record');
+    }
+};
+
+/* ------------------------------------------------------------------ */
+/* Get PreLr detial from DB directly                                  */
+/* ------------------------------------------------------------------ */
+
+exports.getPreLrFromDb = async (req, res) => {
+  const { key} = req.params;           // could be name *or* internal_id
+
   try {
-    const data = await fetchOne(id);
-    res.json(data);
+    /* try name first, then internal_id so the URL stays simple */
+    const header = await PreLRDetail
+      .findOne({ $or: [ { name: key }, { internal_id: key } ] })
+      .populate('v_lrs')          // virtual populate defined in schema
+      // .populate('v_punchlists v_checklists')  ← add later if needed
+      .lean();
+
+    if (!header) return res.status(404).send('Pre‑LR not found');
+
+    res.json(header);
   } catch (err) {
-    console.error('Single‑ID fetch error:', err.response?.data || err.message);
-    res.status(500).send('Failed to fetch record');
+    console.error(err);
+    res.status(500).send('Failed to fetch Pre‑LR from DB');
   }
 };
